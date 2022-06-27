@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -16,9 +19,9 @@ class HomeTab extends StatelessWidget {
     return Stack(
       children: [
         _buildBodyBack(),
-        const CustomScrollView(
+        CustomScrollView(
           slivers: [
-            SliverAppBar(
+            const SliverAppBar(
               floating: true,
               snap: true,
               backgroundColor: Colors.transparent,
@@ -27,7 +30,42 @@ class HomeTab extends StatelessWidget {
                 title: Text("Novidades"),
                 centerTitle: true,
               ),
-            )
+            ),
+            FutureBuilder<QuerySnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('home')
+                    .orderBy('position')
+                    .get(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return SliverToBoxAdapter(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 200,
+                        child: const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 1,
+                      crossAxisSpacing: 1,
+                      children: snapshot.data!.docs.map((doc) {
+                        return StaggeredGridTile.count(
+                            crossAxisCellCount: doc['x'],
+                            mainAxisCellCount: doc['y'],
+                            child: FadeInImage.memoryNetwork(
+                              placeholder: kTransparentImage,
+                              image: doc['imageUrl'],
+                              fit: BoxFit.cover,
+                            ));
+                      }).toList(),
+                    );
+                  }
+                })
           ],
         )
       ],
