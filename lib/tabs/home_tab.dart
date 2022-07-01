@@ -49,14 +49,14 @@ class HomeTab extends StatelessWidget {
                       ),
                     );
                   } else {
-                    return StaggeredGrid.count(
+                    return SliverGrid.count(
                       crossAxisCount: 2,
                       mainAxisSpacing: 1,
                       crossAxisSpacing: 1,
                       children: snapshot.data!.docs.map((doc) {
                         return StaggeredGridTile.count(
-                            crossAxisCellCount: doc['x'],
-                            mainAxisCellCount: doc['y'],
+                            crossAxisCellCount: doc['width'],
+                            mainAxisCellCount: doc['height'],
                             child: FadeInImage.memoryNetwork(
                               placeholder: kTransparentImage,
                               image: doc['imageUrl'],
